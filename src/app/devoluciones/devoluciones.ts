@@ -1,4 +1,3 @@
-
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, FormArray, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -32,7 +31,7 @@ productosBase: Producto[] = [
   { codigo: '112133', descripcion: 'PAN EMP BLANCO SANDUCHERO MODERNA 550G' },
   { codigo: '109275', descripcion: 'PAN MOD ARTESANAL BLANCO 560G' },
   { codigo: '112748', descripcion: 'PAN EMP ARTESANAL INTEGRAL 500G' },
-  { codigo: '13826', descripcion: 'PAN EMP GOURMET CINCO CEREALES 675G' },
+  { codigo: '113826', descripcion: 'PAN EMP GOURMET CINCO CEREALES 675G' },
   { codigo: '118070', descripcion: 'PAN EMP GOURMET BRIOCHE 600G' },
   { codigo: '116411', descripcion: 'PAN MODERNA DOBLE FIBRA 100% INT 650G' },
   { codigo: '111669', descripcion: 'PAN GOURMET GRANOLA MANZANA Y MACAD 500G' },
@@ -65,7 +64,9 @@ productosBase: Producto[] = [
   nuevoProductoForm: FormGroup;
   mostrarFormulario = false;
 
-  constructor(private fb: FormBuilder) {
+  constructor(
+    private readonly fb: FormBuilder
+  ) {
     this.nuevoProductoForm = this.fb.group({
       codigo: ['', [Validators.required]],
       descripcion: ['', [Validators.required]]
@@ -141,10 +142,7 @@ productosBase: Producto[] = [
     const unidadesArray = this.formulario.get('unidades') as FormArray;
     unidadesArray.controls.forEach(control => control.setValue(null));
   }
-
   
-
-
   // Agregar nuevo producto
   agregarProducto() {
     if (this.nuevoProductoForm.valid) {
@@ -249,7 +247,7 @@ productosBase: Producto[] = [
     
     const wb: XLSX.WorkBook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'Devoluciones');
-    
+
     XLSX.writeFile(wb, `devoluciones_${fechaCreacion.replace(/\//g, '-')}.xlsx`);
   }
 }
