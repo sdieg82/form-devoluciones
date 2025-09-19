@@ -1,6 +1,5 @@
-<!-- app.component.html -->
 <div class="container mt-3">
-  <h5 class="mb-3">Fecha: {{ fechaActual | date : 'dd/MM/yyyy' }}</h5>
+  <h5 class="mb-3">Devoluciones pan Fecha: {{ fechaActual | date : 'dd/MM/yyyy' }}</h5>
   <form [formGroup]="formulario">
     <div *ngFor="let producto of productos; let i = index" class="row align-items-center mb-2">
       <div class="col-4 col-md-3">
@@ -17,7 +16,9 @@
           min="0"
           class="form-control"
           [formControl]="$any(formulario.get('unidades')).at(i)"
-          placeholder="Unidades"
+          placeholder="0"
+          (focus)="onFocus($event, i)"
+          (input)="onInput($event, i)"
         />
       </div>
     </div>

@@ -7,6 +7,7 @@ interface Producto {
   codigo: string;
   descripcion: string;
 }
+
 @Component({
   selector: 'app-devoluciones',
   standalone: true,
@@ -19,8 +20,9 @@ interface Producto {
   styleUrl: './devoluciones.css'
 })
 export class Devoluciones {
-      fechaActual = new Date();
-  productos: Producto[] = [
+  fechaActual = new Date();
+
+productos: Producto[] = [
   { codigo: '112131', descripcion: 'PAN EMP MODERNA BLANCO 550G' },
   { codigo: '113684', descripcion: 'PAN EMP MODERNA INTEGRAL 575G' },
   { codigo: '113685', descripcion: 'PAN EMP MODERNA INTEGRAL 350G' },
@@ -45,27 +47,94 @@ export class Devoluciones {
   { codigo: '110151', descripcion: 'APANADURA DORADITA MODERNA 150G' },
   { codigo: '110149', descripcion: 'APANADURA DORADITA MODERNA 250G' },
   { codigo: '110150', descripcion: 'APANADURA DORADITA MODERNA 500G' },
-  { codigo: '118593', descripcion: 'APANADURA DORADITA MAGGI 300G' }
+  { codigo: '118593', descripcion: 'APANADURA DORADITA MAGGI 300G' },
+  { codigo: '', descripcion: 'BANDEJAS DEVUELTAS' },
 ];
 
   formulario: FormGroup;
 
   constructor(private fb: FormBuilder) {
+    // Cambiar la inicialización para usar null en lugar de 0
     this.formulario = this.fb.group({
-      unidades: this.fb.array(this.productos.map(() => this.fb.control(0)))
+      unidades: this.fb.array(this.productos.map(() => this.fb.control(null)))
     });
   }
 
-  exportarExcel() {
-    const valores = (this.formulario.get('unidades') as FormArray).value;
-    const rows = this.productos.map((prod, idx) => ({
-      Codigo: prod.codigo,
-      Descripción: prod.descripcion,
-      Cantidad: valores[idx]
-    }));
-    const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(rows);
-    const wb: XLSX.WorkBook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'Productos');
-    XLSX.writeFile(wb, `productos_${new Date().toISOString().slice(0,10)}.xlsx`);
+  // Método para manejar el focus en los inputs
+  onFocus(event: FocusEvent, index: number) {
+    const input = event.target as HTMLInputElement;
+    const control = (this.formulario.get('unidades') as FormArray).at(index);
+    
+    // Si el valor es 0 o null, seleccionar todo el texto
+    if (control.value === 0 || control.value === null) {
+      setTimeout(() => {
+        input.select();
+      }, 0);
+    }
   }
+
+  // Método para manejar cuando se escribe en el input
+  onInput(event: Event, index: number) {
+    const input = event.target as HTMLInputElement;
+    const control = (this.formulario.get('unidades') as FormArray).at(index);
+    
+    // Si el campo estaba vacío o era 0, reemplazar completamente
+    if (control.value === 0 || control.value === null) {
+      const newValue = input.value.replace(/^0+/, '') || '0';
+      control.setValue(parseInt(newValue) || 0);
+    }
+  }
+
+  exportarExcel() {
+  const valores = (this.formulario.get('unidades') as FormArray).value;
+  const fechaCreacion = new Date().toLocaleDateString('es-ES');
+  
+  // Crear el header personalizado
+  const headerData = [
+    { Codigo: 'DEVOLUCIONES PAN', Descripción: '', Cantidad: '' },
+    { Codigo: `Fecha: ${fechaCreacion}`, Descripción: '', Cantidad: '' },
+    { Codigo: '', Descripción: '', Cantidad: '' }, // Fila vacía para separar
+    { Codigo: 'Código', Descripción: 'Descripción', Cantidad: 'Cantidad' } // Headers de columna
+  ];
+  
+  // Crear los datos de productos
+  const productosData = this.productos.map((prod, idx) => ({
+    Codigo: prod.codigo,
+    Descripción: prod.descripcion,
+    Cantidad: valores[idx] || 0
+  }));
+  
+  // Combinar header con datos
+  const allData = [...headerData, ...productosData];
+  
+  const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(allData);
+  
+  // Opcional: Mejorar el formato del header
+  // Mergear celdas para el título principal
+  if (!ws['!merges']) ws['!merges'] = [];
+  ws['!merges'].push(
+    { s: { r: 0, c: 0 }, e: { r: 0, c: 2 } }, // Mergear "DEVOLUCIONES PAN"
+    { s: { r: 1, c: 0 }, e: { r: 1, c: 2 } }  // Mergear la fecha
+  );
+  
+  // Establecer ancho de columnas
+  ws['!cols'] = [
+    { width: 15 }, // Código
+    { width: 50 }, // Descripción  
+    { width: 10 }  // Cantidad
+  ];
+  
+  const wb: XLSX.WorkBook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Devoluciones');
+  
+  XLSX.writeFile(wb, `devoluciones_${fechaCreacion.replace(/\//g, '-')}.xlsx`);
 }
+
+}
+
+
+
+
+
+
+
