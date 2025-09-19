@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, FormArray, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import * as XLSX from 'xlsx';
+import { FilterPipe } from '../pipes/pipes-pipe';
 
 interface Producto {
   codigo: string;
@@ -14,13 +15,14 @@ interface Producto {
   imports: [
     CommonModule,
     FormsModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
   ],
   templateUrl: './devoluciones.html',
   styleUrl: './devoluciones.css'
 })
 export class Devoluciones implements OnInit {
   fechaActual = new Date();
+  searchTerm:string ='';
 
 productosBase: Producto[] = [
   { codigo: '112131', descripcion: 'PAN EMP MODERNA BLANCO 550G' },
@@ -81,6 +83,21 @@ productosBase: Producto[] = [
     this.cargarProductos();
     this.actualizarFecha();
   }
+
+  // En tu componente, agrega este getter:
+get productosFiltrados() {
+  if (!this.searchTerm) return this.productos;
+  return this.productos.filter(producto =>
+    producto.codigo.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+    producto.descripcion.toLowerCase().includes(this.searchTerm.toLowerCase())
+  );
+}
+
+// Agregar método para obtener índice real
+obtenerIndiceReal(producto: any): number {
+  return this.productos.findIndex(p => p.codigo === producto.codigo && p.descripcion === producto.descripcion);
+}
+
 
   // Actualizar fecha automáticamente cada día
   actualizarFecha() {

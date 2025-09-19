@@ -16,6 +16,15 @@
         Limpiar Formulario
       </button>
     </div>
+
+    <div class="search-bar mt-3 mb-3">
+      <input 
+      type="text" 
+      placeholder="Buscar producto..." 
+      class="form-control form-control-sm" 
+      [(ngModel)]="searchTerm" 
+      >
+    </div>
     
     <!-- Formulario para nuevo producto -->
     <div class="nuevo-producto-form mt-3" *ngIf="mostrarFormulario">
@@ -52,59 +61,59 @@
 
   <form [formGroup]="formulario">
     <div class="productos-section">
-      <div *ngFor="let producto of productos; let i = index" 
-           class="producto-row"
-           [class.bandejas-especiales]="producto.codigo === ''"
-           [class.producto-personalizado]="esProductoPersonalizado(i)">
-        
-        <!-- ÍNDICE VISUAL -->
-        <div class="indice-visual" 
-             [class.indice-bandejas]="producto.codigo === ''"
-             [class.indice-personalizado]="esProductoPersonalizado(i)">
-          {{ i + 1 }}
-        </div>
-        
-        <div class="producto-info">
-          <div class="codigo-section">
-            <span class="label-small">CÓDIGO</span>
-            <div class="codigo-value" [class.codigo-empty]="producto.codigo === ''">
-              {{ producto.codigo || '---' }}
-            </div>
-          </div>
-          
-          <div class="descripcion-section">
-            <span class="label-small">DESCRIPCIÓN</span>
-            <div class="descripcion-value" [class.descripcion-bandejas]="producto.codigo === ''">
-              {{ producto.descripcion }}
-            </div>
-          </div>
-
-          <!-- Botón eliminar para productos personalizados -->
-          <div class="acciones-section" *ngIf="esProductoPersonalizado(i)">
-            <button 
-              type="button"
-              class="btn btn-outline-danger btn-sm"
-              (click)="eliminarProductoPersonalizado(i)"
-              title="Eliminar producto">
-              🗑️
-            </button>
-          </div>
-        </div>
-        
-        <div class="cantidad-section">
-          <span class="label-small">CANTIDAD</span>
-          <input
-            type="tel"
-            min="0"
-            class="form-control input-cantidad"
-            [class.input-bandejas]="producto.codigo === ''"
-            [formControl]="$any(formulario.get('unidades')).at(i)"
-            placeholder="0"
-            (focus)="onFocus($event, i)"
-            (input)="onInput($event, i)"
-          />
-        </div>
+      <div *ngFor="let producto of productosFiltrados; let i = index" 
+     class="producto-row"
+     [class.bandejas-especiales]="producto.codigo === '000000'"
+     [class.producto-personalizado]="esProductoPersonalizado(obtenerIndiceReal(producto))">
+  
+  <!-- ÍNDICE VISUAL -->
+  <div class="indice-visual" 
+       [class.indice-bandejas]="producto.codigo === '000000'"
+       [class.indice-personalizado]="esProductoPersonalizado(obtenerIndiceReal(producto))">
+    {{ obtenerIndiceReal(producto) + 1 }}
+  </div>
+  
+  <div class="producto-info">
+    <div class="codigo-section">
+      <span class="label-small">CÓDIGO</span>
+      <div class="codigo-value" [class.codigo-empty]="producto.codigo === '000000'">
+        {{ producto.codigo === '000000' ? '---' : producto.codigo }}
       </div>
+    </div>
+    
+    <div class="descripcion-section">
+      <span class="label-small">DESCRIPCIÓN</span>
+      <div class="descripcion-value" [class.descripcion-bandejas]="producto.codigo === '000000'">
+        {{ producto.descripcion }}
+      </div>
+    </div>
+
+    <div class="acciones-section" *ngIf="esProductoPersonalizado(obtenerIndiceReal(producto))">
+      <button 
+        type="button"
+        class="btn btn-outline-danger btn-sm"
+        (click)="eliminarProductoPersonalizado(obtenerIndiceReal(producto))"
+        title="Eliminar producto">
+        🗑️
+      </button>
+    </div>
+  </div>
+  
+  <div class="cantidad-section">
+    <span class="label-small">CANTIDAD</span>
+    <input
+      type="tel"
+      min="0"
+      class="form-control input-cantidad"
+      [class.input-bandejas]="producto.codigo === '000000'"
+      [formControl]="$any(formulario.get('unidades')).at(obtenerIndiceReal(producto))"
+      placeholder="0"
+      (focus)="onFocus($event, obtenerIndiceReal(producto))"
+      (input)="onInput($event, obtenerIndiceReal(producto))"
+    />
+  </div>
+</div>
+
     </div>
     
     <div class="export-section text-center mt-4 mb-4">
