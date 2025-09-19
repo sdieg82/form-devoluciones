@@ -1,7 +1,7 @@
 <div class="container-fluid px-2 mt-3">
   <div class="header-section mb-3">
     <h5 class="text-primary fw-bold mb-1">🍞 DEVOLUCIONES PAN</h5>
-    <small class="text-muted">DEVOLUCIONES PAN Fecha: {{ fechaActual | date : 'dd/MM/yyyy' }}</small>
+    <small class="text-muted">Fecha: {{ fechaActual | date : 'dd/MM/yyyy' }}</small>
   </div>
 
   <!-- Botón para agregar producto -->
@@ -11,6 +11,11 @@
       (click)="mostrarFormulario = !mostrarFormulario">
       {{ mostrarFormulario ? '❌ Cancelar' : '➕ Agregar Producto' }}
     </button>
+    <div class="export-section text-center mt-4">
+      <button type="button" class="btn btn-danger" (click)="limpiarFormulario()">
+        Limpiar Formulario
+      </button>
+    </div>
     
     <!-- Formulario para nuevo producto -->
     <div class="nuevo-producto-form mt-3" *ngIf="mostrarFormulario">
@@ -107,5 +112,6 @@
         📊 Exportar a Excel
       </button>
     </div>
+
   </form>
 </div>

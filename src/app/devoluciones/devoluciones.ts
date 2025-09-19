@@ -142,6 +142,9 @@ productosBase: Producto[] = [
     unidadesArray.controls.forEach(control => control.setValue(null));
   }
 
+  
+
+
   // Agregar nuevo producto
   agregarProducto() {
     if (this.nuevoProductoForm.valid) {

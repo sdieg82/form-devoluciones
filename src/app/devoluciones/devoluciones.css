@@ -94,7 +94,7 @@
 
 /* Valores de código y descripción */
 .codigo-value {
-  font-size: 0.75rem;
+  font-size: 0.9em;
   font-weight: 600;
   color: #495057;
   line-height: 1.2;
@@ -106,7 +106,7 @@
 }
 
 .descripcion-value {
-  font-size: 0.7rem;
+  font-size: 1rem;
   color: #6c757d;
   line-height: 1.2;
   overflow: hidden;
