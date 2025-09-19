@@ -38,9 +38,11 @@
 
 /* Layout para móvil: información del producto arriba, cantidad abajo */
 .producto-info {
+  flex: 1;
   display: flex;
   justify-content: space-between;
   margin-bottom: 8px;
+  align-items: flex-start;
 }
 
 .codigo-section {
@@ -209,4 +211,111 @@ input[type="number"] {
     overflow: visible;
     text-overflow: unset;
   }
+}
+
+
+/* Ajustar el layout del producto para incluir el índice */
+.producto-row {
+  display: flex;
+  align-items: stretch;
+  background: #fafafa;
+  border: 1px solid #e9ecef;
+  border-radius: 6px;
+  padding: 8px;
+  margin-bottom: 8px;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+/* Índice visual */
+.indice-visual {
+  flex: 0 0 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #28a745;
+  color: white;
+  font-weight: bold;
+  font-size: 0.9rem;
+  border-radius: 6px;
+  margin-right: 10px;
+  box-shadow: 0 2px 4px rgba(40, 167, 69, 0.3);
+  min-height: 35px;
+}
+
+/* Índice para bandejas devueltas */
+.indice-bandejas {
+  background: #ffc107 !important;
+  color: #856404 !important;
+  font-size: 1rem !important;
+  box-shadow: 0 2px 4px rgba(255, 193, 7, 0.4) !important;
+}
+
+/* Índice para productos personalizados */
+.indice-personalizado {
+  background: #2196f3 !important;
+  color: white !important;
+  box-shadow: 0 2px 4px rgba(33, 150, 243, 0.3) !important;
+}
+
+/* Ajustar el contenedor principal del producto */
+
+
+/* Responsive para móvil */
+@media (max-width: 767px) {
+  .producto-row {
+    flex-direction: column;
+  }
+  
+  .indice-visual {
+    flex: 0 0 30px;
+    align-self: flex-start;
+    margin-right: 0;
+    margin-bottom: 8px;
+    width: 40px;
+    height: 30px;
+    font-size: 0.8rem;
+  }
+  
+  .producto-info {
+    margin-bottom: 8px;
+  }
+}
+
+/* Para pantallas grandes - layout horizontal */
+@media (min-width: 768px) {
+  .producto-row {
+    flex-direction: row;
+    align-items: center;
+    padding: 12px;
+  }
+  
+  .producto-info {
+    flex: 1;
+    margin-bottom: 0;
+    margin-right: 15px;
+  }
+.cantidad-section {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(40, 167, 69, 0.05);
+  border-radius: 4px;
+  padding: 6px;
+  min-width: 100px;
+}
+
+  
+  .indice-visual {
+    flex: 0 0 45px;
+    min-height: 45px;
+    font-size: 1rem;
+  }
+}
+
+/* Animación para el hover del índice */
+.indice-visual:hover {
+  transform: scale(1.1);
+  transition: transform 0.2s ease;
 }

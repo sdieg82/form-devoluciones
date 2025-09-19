@@ -4,13 +4,61 @@
     <small class="text-muted">DEVOLUCIONES PAN Fecha: {{ fechaActual | date : 'dd/MM/yyyy' }}</small>
   </div>
 
+  <!-- Botón para agregar producto -->
+  <div class="agregar-producto-section mb-3">
+    <button 
+      class="btn btn-outline-primary btn-sm"
+      (click)="mostrarFormulario = !mostrarFormulario">
+      {{ mostrarFormulario ? '❌ Cancelar' : '➕ Agregar Producto' }}
+    </button>
+    
+    <!-- Formulario para nuevo producto -->
+    <div class="nuevo-producto-form mt-3" *ngIf="mostrarFormulario">
+      <form [formGroup]="nuevoProductoForm" (ngSubmit)="agregarProducto()">
+        <div class="row g-2">
+          <div class="col-4">
+            <input 
+              type="text" 
+              class="form-control form-control-sm"
+              formControlName="codigo"
+              placeholder="Código"
+              maxlength="10">
+          </div>
+          <div class="col-6">
+            <input 
+              type="text" 
+              class="form-control form-control-sm"
+              formControlName="descripcion"
+              placeholder="Descripción"
+              maxlength="50">
+          </div>
+          <div class="col-2">
+            <button 
+              type="submit" 
+              class="btn btn-success btn-sm w-100"
+              [disabled]="nuevoProductoForm.invalid">
+              ✓
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <form [formGroup]="formulario">
     <div class="productos-section">
       <div *ngFor="let producto of productos; let i = index" 
            class="producto-row"
-           [class.bandejas-especiales]="producto.codigo === ''">
+           [class.bandejas-especiales]="producto.codigo === ''"
+           [class.producto-personalizado]="esProductoPersonalizado(i)">
         
-        <!-- Código y Descripción en la primera línea -->
+        <!-- ÍNDICE VISUAL -->
+        <div class="indice-visual" 
+             [class.indice-bandejas]="producto.codigo === ''"
+             [class.indice-personalizado]="esProductoPersonalizado(i)">
+          {{ i + 1 }}
+        </div>
+        
         <div class="producto-info">
           <div class="codigo-section">
             <span class="label-small">CÓDIGO</span>
@@ -25,9 +73,19 @@
               {{ producto.descripcion }}
             </div>
           </div>
+
+          <!-- Botón eliminar para productos personalizados -->
+          <div class="acciones-section" *ngIf="esProductoPersonalizado(i)">
+            <button 
+              type="button"
+              class="btn btn-outline-danger btn-sm"
+              (click)="eliminarProductoPersonalizado(i)"
+              title="Eliminar producto">
+              🗑️
+            </button>
+          </div>
         </div>
         
-        <!-- Input en una línea separada para mejor visibilidad -->
         <div class="cantidad-section">
           <span class="label-small">CANTIDAD</span>
           <input
