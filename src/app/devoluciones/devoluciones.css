@@ -81,6 +81,8 @@
   font-size: 0.85rem !important;
 }
 
+
+
 /* Labels pequeños */
 .label-small {
   font-size: 0.6rem;
@@ -122,7 +124,7 @@
   border-radius: 6px;
   text-align: center;
   font-weight: bold;
-  font-size: 1rem;
+  font-size: 16px !important; /* Mínimo 16px para evitar zoom */
   background: white;
   box-shadow: 0 1px 4px rgba(0,0,0,0.1);
 }
@@ -318,4 +320,15 @@ input[type="number"] {
 .indice-visual:hover {
   transform: scale(1.1);
   transition: transform 0.2s ease;
+}
+
+
+
+/* También para los inputs del formulario de búsqueda y nuevo producto */
+.form-control-sm {
+  font-size: 16px !important;
+}
+
+.search-bar input {
+  font-size: 16px !important;
 }
