@@ -48,7 +48,7 @@ productos: Producto[] = [
   { codigo: '110149', descripcion: 'APANADURA DORADITA MODERNA 250G' },
   { codigo: '110150', descripcion: 'APANADURA DORADITA MODERNA 500G' },
   { codigo: '118593', descripcion: 'APANADURA DORADITA MAGGI 300G' },
-  { codigo: '', descripcion: 'BANDEJAS DEVUELTAS' },
+  { codigo: '000000', descripcion: 'BANDEJAS DEVUELTAS' },
 ];
 
   formulario: FormGroup;

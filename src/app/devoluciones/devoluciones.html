@@ -1,29 +1,53 @@
-<div class="container mt-3">
-  <h5 class="mb-3">Devoluciones pan Fecha: {{ fechaActual | date : 'dd/MM/yyyy' }}</h5>
+<div class="container-fluid px-2 mt-3">
+  <div class="header-section mb-3">
+    <h5 class="text-primary fw-bold mb-1">🍞 DEVOLUCIONES PAN</h5>
+    <small class="text-muted">DEVOLUCIONES PAN Fecha: {{ fechaActual | date : 'dd/MM/yyyy' }}</small>
+  </div>
+
   <form [formGroup]="formulario">
-    <div *ngFor="let producto of productos; let i = index" class="row align-items-center mb-2">
-      <div class="col-4 col-md-3">
-        <span class="text-muted small">Código</span>
-        <div>{{ producto.codigo }}</div>
-      </div>
-      <div class="col-6 col-md-6">
-        <span class="text-muted small">Descripción</span>
-        <div>{{ producto.descripcion }}</div>
-      </div>
-      <div class="col-2 col-md-3">
-        <input
-          type="number"
-          min="0"
-          class="form-control"
-          [formControl]="$any(formulario.get('unidades')).at(i)"
-          placeholder="0"
-          (focus)="onFocus($event, i)"
-          (input)="onInput($event, i)"
-        />
+    <div class="productos-section">
+      <div *ngFor="let producto of productos; let i = index" 
+           class="producto-row"
+           [class.bandejas-especiales]="producto.codigo === ''">
+        
+        <!-- Código y Descripción en la primera línea -->
+        <div class="producto-info">
+          <div class="codigo-section">
+            <span class="label-small">CÓDIGO</span>
+            <div class="codigo-value" [class.codigo-empty]="producto.codigo === ''">
+              {{ producto.codigo || '---' }}
+            </div>
+          </div>
+          
+          <div class="descripcion-section">
+            <span class="label-small">DESCRIPCIÓN</span>
+            <div class="descripcion-value" [class.descripcion-bandejas]="producto.codigo === ''">
+              {{ producto.descripcion }}
+            </div>
+          </div>
+        </div>
+        
+        <!-- Input en una línea separada para mejor visibilidad -->
+        <div class="cantidad-section">
+          <span class="label-small">CANTIDAD</span>
+          <input
+            type="number"
+            min="0"
+            class="form-control input-cantidad"
+            [class.input-bandejas]="producto.codigo === ''"
+            [formControl]="$any(formulario.get('unidades')).at(i)"
+            placeholder="0"
+            (focus)="onFocus($event, i)"
+            (input)="onInput($event, i)"
+          />
+        </div>
       </div>
     </div>
-    <button type="button" class="btn btn-success btn-block mt-3" (click)="exportarExcel()">
-      Exportar a Excel
-    </button>
+    
+    <div class="export-section text-center mt-4">
+      <button type="button" class="btn btn-success btn-export" (click)="exportarExcel()">
+        📊 Exportar a Excel
+      </button>
+    </div>
   </form>
 </div>
