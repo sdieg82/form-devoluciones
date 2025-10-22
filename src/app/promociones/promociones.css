@@ -334,3 +334,39 @@ input[type="number"] {
 .search-bar input {
   font-size: 16px !important;
 }
+
+.nuevo-registro-form .card {
+  border: 2px solid #0d6efd;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.nuevo-registro-form .card-header {
+  background-color: #0d6efd;
+  color: white;
+}
+
+.form-label {
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.registros-section .table th {
+  font-size: 0.85rem;
+  padding: 8px 6px;
+}
+
+.registros-section .table td {
+  font-size: 0.85rem;
+  padding: 8px 6px;
+  vertical-align: middle;
+}
+
+@media (max-width: 768px) {
+  .registros-section .table-responsive {
+    font-size: 0.75rem;
+  }
+  
+  .nuevo-registro-form .row > div {
+    margin-bottom: 1rem;
+  }
+}

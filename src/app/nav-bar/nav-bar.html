@@ -1,0 +1,46 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
+  <div class="container-fluid">
+    <!-- Brand/Logo -->
+    <a class="navbar-brand" [routerLink]="['/']">
+      <i class="fas fa-home me-2"></i>Mi App
+    </a>
+
+    <!-- Toggler para móviles -->
+    <button 
+      class="navbar-toggler" 
+      type="button" 
+      [class.collapsed]="isMenuCollapsed"
+      (click)="toggleNavbar()"
+      aria-controls="navbarNav" 
+      [attr.aria-expanded]="!isMenuCollapsed">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <!-- Menú de navegación -->
+    <div 
+      class="collapse navbar-collapse" 
+      id="navbarNav"
+      [class.show]="!isMenuCollapsed">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item">
+          <a 
+            class="nav-link" 
+            [routerLink]="['/']"
+            routerLinkActive="active"
+            (click)="closeMenu()">
+            <i class="fas fa-undo me-2"></i>Devoluciones
+          </a>
+        </li>
+        <li class="nav-item">
+          <a 
+            class="nav-link" 
+            [routerLink]="['/promociones']"
+            routerLinkActive="active"
+            (click)="closeMenu()">
+            <i class="fas fa-tags me-2"></i>Promociones
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>

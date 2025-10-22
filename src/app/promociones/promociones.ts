@@ -9,57 +9,35 @@ interface Producto {
   codigo: string;
   descripcion: string;
 }
+interface RegistroVenta {
+  fecha: Date;
+  cliente: string;
+  factura: string;
+  producto: string;
+  unidadesVendidas: number;
+  unidadesPromociones: number;
+  valor: number;
+}
 
 @Component({
-  selector: 'app-devoluciones',
-  standalone: true,
+  selector: 'app-promociones',
   imports: [
+    NavBar, 
     CommonModule,
     FormsModule,
-    ReactiveFormsModule,
-    NavBar
-],
-  templateUrl: './devoluciones.html',
-  styleUrl: './devoluciones.css'
+    ReactiveFormsModule, 
+    FilterPipe
+  ],
+  templateUrl: './promociones.html',
+  styleUrl: './promociones.css'
 })
-export class Devoluciones implements OnInit {
+export class Promociones implements OnInit {
   fechaActual = new Date();
   searchTerm:string ='';
+  registrosVentas: RegistroVenta[] = []; // Nueva propiedad
+  totalGeneral: number = 0; // Nueva propiedad
 
 productosBase: Producto[] = [
-  { codigo: '112131', descripcion: 'PAN EMP MODERNA BLANCO 550G' },
-  { codigo: '113684', descripcion: 'PAN EMP MODERNA INTEGRAL 575G' },
-  { codigo: '113685', descripcion: 'PAN EMP MODERNA INTEGRAL 350G' },
-  { codigo: '112132', descripcion: 'PAN BLANCO SANDUCHERO 800G' },
-  { codigo: '113681', descripcion: 'PAN EMP SANDUCHERO INT 800 G N' },
-  { codigo: '112133', descripcion: 'PAN EMP BLANCO SANDUCHERO MODERNA 550G' },
-  { codigo: '109275', descripcion: 'PAN MOD ARTESANAL BLANCO 560G' },
-  { codigo: '112748', descripcion: 'PAN EMP ARTESANAL INTEGRAL 500G' },
-  { codigo: '113826', descripcion: 'PAN EMP GOURMET CINCO CEREALES 675G' },
-  { codigo: '118070', descripcion: 'PAN EMP GOURMET BRIOCHE 600G' },
-  { codigo: '116411', descripcion: 'PAN MODERNA DOBLE FIBRA 100% INT 650G' },
-  { codigo: '111669', descripcion: 'PAN GOURMET GRANOLA MANZANA Y MACAD 500G' },
-  { codigo: '111668', descripcion: 'PAN GOURMET GRANOLA FRUTOS Y ALMEN 500G' },
-  { codigo: '111669', descripcion: 'PAN GOURMET GRANOLA MANZANA 500G' },
-  { codigo: '111670', descripcion: 'PAN GOURMET GRANOLA MORAS Y NUECES 500G' },
-  { codigo: '100758', descripcion: 'PAN EMP MODERNA CHOCOPAN RODAJAS 450G' },
-  { codigo: '100775', descripcion: 'PAN EMP MODERNA HOT DOG 270G' },
-  { codigo: '109043', descripcion: 'PAN EMP HOT DOG MODERNA GIG 8 UNID 560G' },
-  { codigo: '107033', descripcion: 'PAN EMP MODERNA HAMBURGUESA 280G' },
-  { codigo: '115084', descripcion: 'PAN HAMBURGUESA MODERNA 520G' },
-  { codigo: '118160', descripcion: 'PAN BLANCO FLOR DE ORO 550GR' },
-  { codigo: '118259', descripcion: 'PAN INTEGRAL FLOR DE ORO 600GR' },
-  { codigo: '115288', descripcion: 'PONQUE CHOCOLATE CHOCOBOOM 63G' },
-  { codigo: '117205', descripcion: 'PONQUE CHOCOBOOM MANICHO 34G' },
-  { codigo: '110151', descripcion: 'APANADURA DORADITA MODERNA 150G' },
-  { codigo: '110149', descripcion: 'APANADURA DORADITA MODERNA 250G' },
-  { codigo: '110150', descripcion: 'APANADURA DORADITA MODERNA 500G' },
-  { codigo: '118593', descripcion: 'APANADURA DORADITA MAGGI 300G' },
-  { codigo: '118296', descripcion: 'PAN BLANCO ECONOMAS 500G' },
-  { codigo: '116456', descripcion: 'PAN GOURMET MASA MADRE 600G' },
-  { codigo: '115475', descripcion: 'TOSTADAS INTEGRALES MODERNAS 100G' },
-  { codigo: '115474', descripcion: 'TOSTADAS NATURALES 100G' },
-  { codigo: '000000', descripcion: 'BANDEJAS DEVUELTAS' },
 ];
 
 
@@ -79,12 +57,37 @@ productosBase: Producto[] = [
     this.formulario = this.fb.group({
       unidades: this.fb.array([])
     });
+
+      this.nuevoProductoForm = this.fb.group({
+      fecha: [new Date(), [Validators.required]],
+      cliente: ['', [Validators.required, Validators.minLength(2)]],
+      factura: ['', [Validators.required]],
+      producto: ['', [Validators.required]],
+      unidadesVendidas: [0, [Validators.required, Validators.min(0)]],
+      unidadesPromociones: [0, [Validators.required, Validators.min(0)]],
+      valor: [0, [Validators.required, Validators.min(0)]]
+    });
+
+    // Configurar el formulario principal
+    this.formulario = this.fb.group({
+      unidades: this.fb.array([])
+    });
+
+    // Suscribirse a cambios en unidades vendidas, promociones y valor para calcular automáticamente
+    this.nuevoProductoForm.get('unidadesVendidas')?.valueChanges.subscribe(() => this.calcularTotal());
+    this.nuevoProductoForm.get('unidadesPromociones')?.valueChanges.subscribe(() => this.calcularTotal());
+    this.nuevoProductoForm.get('valor')?.valueChanges.subscribe(() => this.calcularTotal());
+
+
   }
 
   ngOnInit() {
     this.cargarProductos();
+    this.cargarRegistrosVentas();
     this.actualizarFecha();
   }
+
+  
 
   // En tu componente, agrega este getter:
 get productosFiltrados() {
@@ -156,36 +159,76 @@ obtenerIndiceReal(producto: any): number {
     }
   }
 
-  // Limpiar formulario para nuevo día
-  limpiarFormulario() {
-    const unidadesArray = this.formulario.get('unidades') as FormArray;
-    unidadesArray.controls.forEach(control => control.setValue(null));
-  }
   
-  // Agregar nuevo producto
+calcularTotal() {
+    const unidadesVendidas = this.nuevoProductoForm.get('unidadesVendidas')?.value || 0;
+    const unidadesPromociones = this.nuevoProductoForm.get('unidadesPromociones')?.value || 0;
+    const valor = this.nuevoProductoForm.get('valor')?.value || 0;
+    
+    // El total sería el valor multiplicado por el total de unidades
+    const totalUnidades = unidadesVendidas + unidadesPromociones;
+    this.totalGeneral = totalUnidades * valor;
+  }
+
+  // Modificar el método agregarProducto
   agregarProducto() {
     if (this.nuevoProductoForm.valid) {
-      const nuevoProducto = this.nuevoProductoForm.value;
-      
-      // Obtener productos personalizados actuales
-      const productosGuardados = localStorage.getItem('productosPersonalizados');
-      const productosPersonalizados = productosGuardados ? JSON.parse(productosGuardados) : [];
-      
-      // Agregar el nuevo producto
-      productosPersonalizados.push(nuevoProducto);
+      const nuevoRegistro: RegistroVenta = {
+        fecha: this.nuevoProductoForm.get('fecha')?.value,
+        cliente: this.nuevoProductoForm.get('cliente')?.value,
+        factura: this.nuevoProductoForm.get('factura')?.value,
+        producto: this.nuevoProductoForm.get('producto')?.value,
+        unidadesVendidas: this.nuevoProductoForm.get('unidadesVendidas')?.value,
+        unidadesPromociones: this.nuevoProductoForm.get('unidadesPromociones')?.value,
+        valor: this.nuevoProductoForm.get('valor')?.value
+      };
+
+      // Agregar a la lista de registros
+      this.registrosVentas.push(nuevoRegistro);
       
       // Guardar en localStorage
-      localStorage.setItem('productosPersonalizados', JSON.stringify(productosPersonalizados));
+      this.guardarRegistrosVentas();
       
-      // Recargar productos
-      this.cargarProductos();
+      // Limpiar formulario pero mantener la fecha actual
+      this.nuevoProductoForm.reset({
+        fecha: new Date(),
+        cliente: '',
+        factura: '',
+        producto: '',
+        unidadesVendidas: 0,
+        unidadesPromociones: 0,
+        valor: 0
+      });
       
-      // Limpiar formulario
-      this.nuevoProductoForm.reset();
       this.mostrarFormulario = false;
+      this.totalGeneral = 0;
     }
   }
 
+  // Nueva función para cargar registros de ventas
+  cargarRegistrosVentas() {
+    const fecha = this.fechaActual.toDateString();
+    const registrosGuardados = localStorage.getItem(`registrosVentas_${fecha}`);
+    
+    if (registrosGuardados) {
+      this.registrosVentas = JSON.parse(registrosGuardados).map((registro: any) => ({
+        ...registro,
+        fecha: new Date(registro.fecha)
+      }));
+    }
+  }
+
+  // Nueva función para guardar registros de ventas
+  guardarRegistrosVentas() {
+    const fecha = this.fechaActual.toDateString();
+    localStorage.setItem(`registrosVentas_${fecha}`, JSON.stringify(this.registrosVentas));
+  }
+
+  // Nueva función para eliminar registro
+  eliminarRegistro(index: number) {
+    this.registrosVentas.splice(index, 1);
+    this.guardarRegistrosVentas();
+  }
   // Eliminar producto personalizado
   eliminarProductoPersonalizado(index: number) {
     const indexPersonalizado = index - this.productosBase.length;
@@ -199,6 +242,25 @@ obtenerIndiceReal(producto: any): number {
       
       this.cargarProductos();
     }
+  }
+
+    // Nueva función para obtener el total de todos los registros
+  getTotalRegistros(): number {
+    return this.registrosVentas.reduce((total, registro) => {
+      const totalUnidades = registro.unidadesVendidas + registro.unidadesPromociones;
+      return total + (totalUnidades * registro.valor);
+    }, 0);
+  }
+
+  // Modificar limpiarFormulario para incluir registros
+  limpiarFormulario() {
+    const unidadesArray = this.formulario.get('unidades') as FormArray;
+    unidadesArray.controls.forEach(control => control.setValue(null));
+    
+    // Limpiar también los registros de ventas
+    this.registrosVentas = [];
+    const fecha = this.fechaActual.toDateString();
+    localStorage.removeItem(`registrosVentas_${fecha}`);
   }
 
   // Verificar si es producto personalizado
@@ -270,3 +332,4 @@ obtenerIndiceReal(producto: any): number {
     XLSX.writeFile(wb, `devoluciones_${fechaCreacion.replace(/\//g, '-')}.xlsx`);
   }
 }
+
