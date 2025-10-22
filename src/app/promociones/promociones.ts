@@ -4,6 +4,9 @@ import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } 
 import * as XLSX from 'xlsx';
 import { NavBar } from "../nav-bar/nav-bar";
 
+// Declarar Bootstrap para poder usar el modal
+declare var bootstrap: any;
+
 interface RegistroVenta {
   fecha: Date;
   cliente: string;
@@ -30,9 +33,10 @@ export class Promociones implements OnInit {
   registrosVentas: RegistroVenta[] = [];
   totalGeneral: number = 0;
   nuevoProductoForm: FormGroup;
-  mostrarFormulario = false;
+  modalInstance: any; // Para controlar el modal
 
-  constructor(private readonly fb: FormBuilder) {
+constructor(private readonly fb: FormBuilder) {
+    
     this.nuevoProductoForm = this.fb.group({
       fecha: [new Date().toISOString().split('T')[0], [Validators.required]],
       cliente: ['', [Validators.required, Validators.minLength(2)]],
@@ -47,6 +51,7 @@ export class Promociones implements OnInit {
     this.nuevoProductoForm.get('unidadesVendidas')?.valueChanges.subscribe(() => this.calcularTotal());
     this.nuevoProductoForm.get('unidadesPromociones')?.valueChanges.subscribe(() => this.calcularTotal());
     this.nuevoProductoForm.get('valor')?.valueChanges.subscribe(() => this.calcularTotal());
+  
   }
 
   ngOnInit() {
@@ -54,6 +59,38 @@ export class Promociones implements OnInit {
     this.actualizarFecha();
   }
 
+  // Inicializar formulario
+  inicializarFormulario() {}
+
+  // Abrir modal
+  abrirModal() {
+    // Resetear formulario con valores por defecto
+    this.nuevoProductoForm.reset({
+      fecha: new Date().toISOString().split('T')[0],
+      cliente: '',
+      factura: '',
+      producto: '',
+      unidadesVendidas: 0,
+      unidadesPromociones: 0,
+      valor: 0
+    });
+    
+    this.totalGeneral = 0;
+    
+    // Abrir modal de Bootstrap
+    const modalElement = document.getElementById('promocionModal');
+    if (modalElement) {
+      this.modalInstance = new bootstrap.Modal(modalElement);
+      this.modalInstance.show();
+    }
+  }
+
+  // Cerrar modal
+  cerrarModal() {
+    if (this.modalInstance) {
+      this.modalInstance.hide();
+    }
+  }
   // Actualizar fecha automáticamente cada día
   actualizarFecha() {
     const ahora = new Date();
@@ -78,7 +115,7 @@ export class Promociones implements OnInit {
   }
 
   // Agregar nuevo registro
-  agregarProducto() {
+   agregarProducto() {
     if (this.nuevoProductoForm.valid) {
       const nuevoRegistro: RegistroVenta = {
         fecha: new Date(this.nuevoProductoForm.get('fecha')?.value),
@@ -93,19 +130,11 @@ export class Promociones implements OnInit {
       this.registrosVentas.push(nuevoRegistro);
       this.guardarRegistrosVentas();
       
-      // Resetear el formulario manteniendo la fecha actual
-      this.nuevoProductoForm.reset({
-        fecha: new Date().toISOString().split('T')[0],
-        cliente: '',
-        factura: '',
-        producto: '',
-        unidadesVendidas: 0,
-        unidadesPromociones: 0,
-        valor: 0
-      });
+      // Cerrar modal después de agregar
+      this.cerrarModal();
       
-      this.mostrarFormulario = false;
-      this.totalGeneral = 0;
+      // Mostrar mensaje de éxito (opcional)
+      console.log('Registro agregado exitosamente');
     }
   }
 
