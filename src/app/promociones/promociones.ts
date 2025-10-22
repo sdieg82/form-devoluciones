@@ -46,20 +46,9 @@ productosBase: Producto[] = [
   nuevoProductoForm: FormGroup;
   mostrarFormulario = false;
 
-  constructor(
-    private readonly fb: FormBuilder
-  ) {
+  constructor(private readonly fb: FormBuilder) {
     this.nuevoProductoForm = this.fb.group({
-      codigo: ['', [Validators.required]],
-      descripcion: ['', [Validators.required]]
-    });
-
-    this.formulario = this.fb.group({
-      unidades: this.fb.array([])
-    });
-
-      this.nuevoProductoForm = this.fb.group({
-      fecha: [new Date(), [Validators.required]],
+      fecha: [new Date().toISOString().split('T')[0], [Validators.required]], // Formato ISO para el input date
       cliente: ['', [Validators.required, Validators.minLength(2)]],
       factura: ['', [Validators.required]],
       producto: ['', [Validators.required]],
@@ -68,18 +57,16 @@ productosBase: Producto[] = [
       valor: [0, [Validators.required, Validators.min(0)]]
     });
 
-    // Configurar el formulario principal
     this.formulario = this.fb.group({
       unidades: this.fb.array([])
     });
 
-    // Suscribirse a cambios en unidades vendidas, promociones y valor para calcular automáticamente
+    // Suscribirse a cambios para calcular automáticamente
     this.nuevoProductoForm.get('unidadesVendidas')?.valueChanges.subscribe(() => this.calcularTotal());
     this.nuevoProductoForm.get('unidadesPromociones')?.valueChanges.subscribe(() => this.calcularTotal());
     this.nuevoProductoForm.get('valor')?.valueChanges.subscribe(() => this.calcularTotal());
-
-
   }
+
 
   ngOnInit() {
     this.cargarProductos();
@@ -174,7 +161,7 @@ calcularTotal() {
   agregarProducto() {
     if (this.nuevoProductoForm.valid) {
       const nuevoRegistro: RegistroVenta = {
-        fecha: this.nuevoProductoForm.get('fecha')?.value,
+        fecha: new Date(this.nuevoProductoForm.get('fecha')?.value), // Convertir string a Date
         cliente: this.nuevoProductoForm.get('cliente')?.value,
         factura: this.nuevoProductoForm.get('factura')?.value,
         producto: this.nuevoProductoForm.get('producto')?.value,
@@ -183,15 +170,12 @@ calcularTotal() {
         valor: this.nuevoProductoForm.get('valor')?.value
       };
 
-      // Agregar a la lista de registros
       this.registrosVentas.push(nuevoRegistro);
-      
-      // Guardar en localStorage
       this.guardarRegistrosVentas();
       
-      // Limpiar formulario pero mantener la fecha actual
+      // Resetear el formulario manteniendo la fecha actual
       this.nuevoProductoForm.reset({
-        fecha: new Date(),
+        fecha: new Date().toISOString().split('T')[0], // Mantener fecha actual en formato ISO
         cliente: '',
         factura: '',
         producto: '',
@@ -331,5 +315,34 @@ calcularTotal() {
 
     XLSX.writeFile(wb, `devoluciones_${fechaCreacion.replace(/\//g, '-')}.xlsx`);
   }
+  selectAllText(event: any) {
+    // Usar setTimeout para asegurar que el evento se ejecute después del focus
+    setTimeout(() => {
+      const input = event.target as HTMLInputElement;
+      if (input && input.select) {
+        input.select();
+      }
+      // Alternativa más robusta para diferentes navegadores
+      if (input && input.setSelectionRange) {
+        input.setSelectionRange(0, input.value.length);
+      }
+    }, 0);
+  }
+
+  // Método para manejar el cambio de fecha (auto-selección)
+  onDateChange(event: any) {
+    const selectedDate = event.target.value;
+    if (selectedDate) {
+      // La fecha ya se selecciona automáticamente con el input type="date"
+      // Opcional: agregar alguna lógica adicional aquí si es necesario
+      console.log('Fecha seleccionada:', selectedDate);
+      
+      // Quitar el focus del campo de fecha automáticamente
+      setTimeout(() => {
+        event.target.blur();
+      }, 100);
+    }
+  }
+
 }
 
