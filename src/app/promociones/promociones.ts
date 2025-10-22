@@ -197,7 +197,7 @@ export class Promociones implements OnInit {
       Producto: registro.producto,
       'U. Vendidas': registro.unidadesVendidas,
       'U. Promociones': registro.unidadesPromociones,
-      'Valor Unit.': registro.valor,
+      'Valor Unit.':` $ ${registro.valor}`,
       Total: (registro.unidadesVendidas + registro.unidadesPromociones)
     }));
 

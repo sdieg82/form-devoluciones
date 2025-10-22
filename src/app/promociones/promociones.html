@@ -1,4 +1,10 @@
 <app-nav-bar></app-nav-bar>
+<div style="display: flex;  justify-content: center">
+
+    <button type="button" class="btn btn btn-success" (click)="mostrarFormulario = !mostrarFormulario">
+        {{ mostrarFormulario ? '❌ Cancelar' : '➕ Agregar Registro de Promoción' }}
+    </button>
+</div>
 
   <!-- Tabla de registros de promociones -->
   <div class="registros-section mb-4">
@@ -28,11 +34,11 @@
                 <td>{{ registro.producto }}</td>
                 <td class="text-center">{{ registro.unidadesVendidas }}</td>
                 <td class="text-center">{{ registro.unidadesPromociones }}</td>
-                <td>{{ registro.valor | currency : 'COP' : 'symbol' : '1.0-2' }}</td>
+                <td>$ {{ registro.valor }}</td>
                 <td>
                   <strong>{{
-                    (registro.unidadesVendidas + registro.unidadesPromociones) * registro.valor
-                      | currency : 'COP' : 'symbol' : '1.0-2'
+                    (registro.unidadesVendidas + registro.unidadesPromociones)
+            
                   }}</strong>
                 </td>
                 <td>
@@ -52,7 +58,7 @@
                 <td colspan="7" class="text-end"><strong>TOTAL GENERAL:</strong></td>
                 <td colspan="2">
                   <strong class="text-success">{{
-                    getTotalRegistros() | currency : 'COP' : 'symbol' : '1.0-2'
+                    getTotalRegistros() 
                   }}</strong>
                 </td>
               </tr>
@@ -72,9 +78,7 @@
  
   <!-- Botón para agregar registro de venta -->
   <div class="export-section text-center mt-">
-    <button type="button" class="btn btn btn-success" (click)="mostrarFormulario = !mostrarFormulario">
-      {{ mostrarFormulario ? '❌ Cancelar' : '➕ Agregar Registro de Promoción' }}
-    </button>
+   
 
     <div class="export-section text-center mt-2">
       <button type="button" class="btn btn-danger" (click)="limpiarFormulario()">
