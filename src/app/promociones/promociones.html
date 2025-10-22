@@ -1,10 +1,13 @@
 <app-nav-bar></app-nav-bar>
 
-<div class="container-fluid px-2 mt-3 main-content">
-<div class="registros-section mb-4" *ngIf="registrosVentas.length > 0">
+  <!-- Tabla de registros de promociones -->
+  <div class="registros-section mb-4">
     <div class="card">
-      <div class="card-header">
-        <h6 class="mb-0">📊 Registros de Ventas del Día</h6>
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h6 class="mb-0">📊 Registros de Promociones del Día</h6>
+        <button type="button" class="btn btn-success btn-sm" (click)="exportarExcel()">
+          📊 Exportar a Excel
+        </button>
       </div>
       <div class="card-body">
         <div class="table-responsive">
@@ -24,22 +27,26 @@
             </thead>
             <tbody>
               <tr *ngFor="let registro of registrosVentas; let i = index">
-                <td>{{ registro.fecha | date:'dd/MM/yyyy' }}</td>
+                <td>{{ registro.fecha | date : 'dd/MM/yyyy' }}</td>
                 <td>{{ registro.cliente }}</td>
                 <td>{{ registro.factura }}</td>
                 <td>{{ registro.producto }}</td>
                 <td class="text-center">{{ registro.unidadesVendidas }}</td>
                 <td class="text-center">{{ registro.unidadesPromociones }}</td>
-                <td>{{ registro.valor | currency:'COP':'symbol':'1.0-2' }}</td>
+                <td>{{ registro.valor | currency : 'COP' : 'symbol' : '1.0-2' }}</td>
                 <td>
-                  <strong>{{ (registro.unidadesVendidas + registro.unidadesPromociones) * registro.valor | currency:'COP':'symbol':'1.0-2' }}</strong>
+                  <strong>{{
+                    (registro.unidadesVendidas + registro.unidadesPromociones) * registro.valor
+                      | currency : 'COP' : 'symbol' : '1.0-2'
+                  }}</strong>
                 </td>
                 <td>
-                  <button 
+                  <button
                     type="button"
                     class="btn btn-outline-danger btn-sm"
                     (click)="eliminarRegistro(i)"
-                    title="Eliminar registro">
+                    title="Eliminar registro"
+                  >
                     🗑️
                   </button>
                 </td>
@@ -49,7 +56,9 @@
               <tr>
                 <td colspan="7" class="text-end"><strong>TOTAL GENERAL:</strong></td>
                 <td colspan="2">
-                  <strong class="text-success">{{ getTotalRegistros() | currency:'COP':'symbol':'1.0-2' }}</strong>
+                  <strong class="text-success">{{
+                    getTotalRegistros() | currency : 'COP' : 'symbol' : '1.0-2'
+                  }}</strong>
                 </td>
               </tr>
             </tfoot>
@@ -59,172 +68,203 @@
     </div>
   </div>
 
+<div class="container-fluid px-2 mt-3 main-content">
+ 
   <!-- Botón para agregar registro de venta -->
-  <div class="agregar-producto-section mb-3">
-    <button 
-      class="btn btn-outline-primary btn-sm"
-      (click)="mostrarFormulario = !mostrarFormulario">
-      {{ mostrarFormulario ? '❌ Cancelar' : '➕ Agregar Registro de Venta' }}
+  <div class="export-section text-center mt-4">
+    <button type="button" class="btn btn btn-success" (click)="mostrarFormulario = !mostrarFormulario">
+      {{ mostrarFormulario ? '❌ Cancelar' : '➕ Agregar Registro de Promoción' }}
     </button>
-    
-    <!-- Formulario para nuevo registro de venta -->
-   <!-- Formulario para nuevo registro de venta -->
-<div class="nuevo-registro-form mt-3" *ngIf="mostrarFormulario">
-  <div class="card">
-    <div class="card-header">
-      <h6 class="mb-0">📝 Nuevo Registro de Venta</h6>
-    </div>
-    <div class="card-body">
-      <form [formGroup]="nuevoProductoForm" (ngSubmit)="agregarProducto()">
-        <!-- Primera fila: Fecha y Cliente -->
-        <div class="row g-2 mb-3">
-          <div class="col-md-6">
-            <label class="form-label text-muted small">📅 FECHA</label>
-            <input 
-              type="date" 
-              class="form-control form-control-sm"
-              formControlName="fecha"
-              (change)="onDateChange($event)">
-            <div *ngIf="nuevoProductoForm.get('fecha')?.invalid && nuevoProductoForm.get('fecha')?.touched" 
-                 class="text-danger small">
-              La fecha es requerida
-            </div>
-          </div>
-          <div class="col-md-6">
-            <label class="form-label text-muted small">👤 CLIENTE</label>
-            <input 
-              type="text" 
-              class="form-control form-control-sm"
-              formControlName="cliente"
-              placeholder="Nombre del cliente"
-              maxlength="50"
-              (focus)="selectAllText($event)">
-            <div *ngIf="nuevoProductoForm.get('cliente')?.invalid && nuevoProductoForm.get('cliente')?.touched" 
-                 class="text-danger small">
-              El cliente es requerido (mín. 2 caracteres)
-            </div>
-          </div>
-        </div>
 
-        <!-- Segunda fila: Factura y Producto -->
-        <div class="row g-2 mb-3">
-          <div class="col-md-6">
-            <label class="form-label text-muted small">🧾 FACTURA</label>
-            <input 
-              type="text" 
-              class="form-control form-control-sm"
-              formControlName="factura"
-              placeholder="Número de factura"
-              maxlength="20"
-              (focus)="selectAllText($event)">
-            <div *ngIf="nuevoProductoForm.get('factura')?.invalid && nuevoProductoForm.get('factura')?.touched" 
-                 class="text-danger small">
-              La factura es requerida
-            </div>
-          </div>
-          <div class="col-md-6">
-            <label class="form-label text-muted small">🍞 PRODUCTO</label>
-            <input 
-              type="text" 
-              class="form-control form-control-sm"
-              formControlName="producto"
-              placeholder="Nombre del producto"
-              maxlength="100"
-              (focus)="selectAllText($event)">
-            <div *ngIf="nuevoProductoForm.get('producto')?.invalid && nuevoProductoForm.get('producto')?.touched" 
-                 class="text-danger small">
-              El producto es requerido
-            </div>
-          </div>
-        </div>
-
-        <!-- Tercera fila: Unidades (CON SELECCIÓN AUTOMÁTICA) -->
-        <div class="row g-2 mb-3">
-          <div class="col-md-6">
-            <label class="form-label text-muted small">📦 UNIDADES VENDIDAS</label>
-            <input 
-              type="number" 
-              class="form-control form-control-sm"
-              formControlName="unidadesVendidas"
-              placeholder="0"
-              min="0"
-              (focus)="selectAllText($event)"
-              (click)="selectAllText($event)">
-            <div *ngIf="nuevoProductoForm.get('unidadesVendidas')?.invalid && nuevoProductoForm.get('unidadesVendidas')?.touched" 
-                 class="text-danger small">
-              Las unidades vendidas son requeridas
-            </div>
-          </div>
-          <div class="col-md-6">
-            <label class="form-label text-muted small">🎁 UNIDADES PROMOCIONES</label>
-            <input 
-              type="number" 
-              class="form-control form-control-sm"
-              formControlName="unidadesPromociones"
-              placeholder="0"
-              min="0"
-              (focus)="selectAllText($event)"
-              (click)="selectAllText($event)">
-            <div *ngIf="nuevoProductoForm.get('unidadesPromociones')?.invalid && nuevoProductoForm.get('unidadesPromociones')?.touched" 
-                 class="text-danger small">
-              Las unidades de promociones son requeridas
-            </div>
-          </div>
-        </div>
-
-        <!-- Cuarta fila: Valor y Total (CON SELECCIÓN AUTOMÁTICA PARA VALOR) -->
-        <div class="row g-2 mb-3">
-          <div class="col-md-6">
-            <label class="form-label text-muted small">💰 VALOR UNITARIO</label>
-            <input 
-              type="number" 
-              class="form-control form-control-sm"
-              formControlName="valor"
-              placeholder="0.00"
-              min="0"
-              step="0.01"
-              (focus)="selectAllText($event)"
-              (click)="selectAllText($event)">
-            <div *ngIf="nuevoProductoForm.get('valor')?.invalid && nuevoProductoForm.get('valor')?.touched" 
-                 class="text-danger small">
-              El valor es requerido
-            </div>
-          </div>
-          <div class="col-md-6">
-            <label class="form-label text-muted small">🧮 TOTAL CALCULADO</label>
-            <div class="alert alert-info py-2 mb-0">
-              <strong>{{ totalGeneral | currency:'COP':'symbol':'1.0-2' }}</strong>
-            </div>
-          </div>
-        </div>
-
-        <!-- Botón de envío -->
-        <div class="text-center">
-          <button 
-            type="submit" 
-            class="btn btn-success"
-            [disabled]="nuevoProductoForm.invalid">
-            ✅ Agregar Registro
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
-
-  </div>
-
-  <!-- Tabla de registros de ventas -->
-  
-
-  <!-- El resto de tu código existente para los productos base -->
-  <form [formGroup]="formulario">
-    <!-- Tu código existente de productos aquí... -->
-    
-    <div class="export-section text-center mt-4 mb-4">
-      <button type="button" class="btn btn-success btn-export" (click)="exportarExcel()">
-        📊 Exportar a Excel
+    <div class="export-section text-center mt-2">
+      <button type="button" class="btn btn-danger" (click)="limpiarFormulario()">
+        Limpiar Registros
       </button>
     </div>
-  </form>
+
+    <!-- Formulario para nuevo registro de venta -->
+    <div class="nuevo-registro-form mt-3" *ngIf="mostrarFormulario">
+      <div class="card">
+        <div class="card-header">
+          <h6 class="mb-0">📝 Nuevo Registro de Promoción</h6>
+        </div>
+        <div class="card-body">
+          <form [formGroup]="nuevoProductoForm" (ngSubmit)="agregarProducto()">
+            <!-- Primera fila: Fecha y Cliente -->
+            <div class="row g-2 mb-3">
+              <div class="col-md-6">
+                <label class="form-label text-muted small">📅 FECHA</label>
+                <input
+                  type="date"
+                  class="form-control form-control-sm"
+                  formControlName="fecha"
+                  (change)="onDateChange($event)"
+                />
+                <div
+                  *ngIf="
+                    nuevoProductoForm.get('fecha')?.invalid &&
+                    nuevoProductoForm.get('fecha')?.touched
+                  "
+                  class="text-danger small"
+                >
+                  La fecha es requerida
+                </div>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label text-muted small">👤 CLIENTE</label>
+                <input
+                  type="text"
+                  class="form-control form-control-sm"
+                  formControlName="cliente"
+                  placeholder="Nombre del cliente"
+                  maxlength="50"
+                  (focus)="selectAllText($event)"
+                />
+                <div
+                  *ngIf="
+                    nuevoProductoForm.get('cliente')?.invalid &&
+                    nuevoProductoForm.get('cliente')?.touched
+                  "
+                  class="text-danger small"
+                >
+                  El cliente es requerido (mín. 2 caracteres)
+                </div>
+              </div>
+            </div>
+
+            <!-- Segunda fila: Factura y Producto -->
+            <div class="row g-2 mb-3">
+              <div class="col-md-6">
+                <label class="form-label text-muted small">🧾 FACTURA</label>
+                <input
+                  type="text"
+                  class="form-control form-control-sm"
+                  formControlName="factura"
+                  placeholder="Número de factura"
+                  maxlength="20"
+                  (focus)="selectAllText($event)"
+                />
+                <div
+                  *ngIf="
+                    nuevoProductoForm.get('factura')?.invalid &&
+                    nuevoProductoForm.get('factura')?.touched
+                  "
+                  class="text-danger small"
+                >
+                  La factura es requerida
+                </div>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label text-muted small">🍞 PRODUCTO</label>
+                <input
+                  type="text"
+                  class="form-control form-control-sm"
+                  formControlName="producto"
+                  placeholder="Nombre del producto"
+                  maxlength="100"
+                  (focus)="selectAllText($event)"
+                />
+                <div
+                  *ngIf="
+                    nuevoProductoForm.get('producto')?.invalid &&
+                    nuevoProductoForm.get('producto')?.touched
+                  "
+                  class="text-danger small"
+                >
+                  El producto es requerido
+                </div>
+              </div>
+            </div>
+
+            <!-- Tercera fila: Unidades -->
+            <div class="row g-2 mb-3">
+              <div class="col-md-6">
+                <label class="form-label text-muted small">📦 UNIDADES VENDIDAS</label>
+                <input
+                  type="number"
+                  class="form-control form-control-sm"
+                  formControlName="unidadesVendidas"
+                  placeholder="0"
+                  min="0"
+                  (focus)="selectAllText($event)"
+                  (click)="selectAllText($event)"
+                />
+                <div
+                  *ngIf="
+                    nuevoProductoForm.get('unidadesVendidas')?.invalid &&
+                    nuevoProductoForm.get('unidadesVendidas')?.touched
+                  "
+                  class="text-danger small"
+                >
+                  Las unidades vendidas son requeridas
+                </div>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label text-muted small">🎁 UNIDADES PROMOCIONES</label>
+                <input
+                  type="number"
+                  class="form-control form-control-sm"
+                  formControlName="unidadesPromociones"
+                  placeholder="0"
+                  min="0"
+                  (focus)="selectAllText($event)"
+                  (click)="selectAllText($event)"
+                />
+                <div
+                  *ngIf="
+                    nuevoProductoForm.get('unidadesPromociones')?.invalid &&
+                    nuevoProductoForm.get('unidadesPromociones')?.touched
+                  "
+                  class="text-danger small"
+                >
+                  Las unidades de promociones son requeridas
+                </div>
+              </div>
+            </div>
+
+            <!-- Cuarta fila: Valor y Total -->
+            <div class="row g-2 mb-3">
+              <div class="col-md-6">
+                <label class="form-label text-muted small">💰 VALOR UNITARIO</label>
+                <input
+                  type="number"
+                  class="form-control form-control-sm"
+                  formControlName="valor"
+                  placeholder="0.00"
+                  min="0"
+                  step="0.01"
+                  (focus)="selectAllText($event)"
+                  (click)="selectAllText($event)"
+                />
+                <div
+                  *ngIf="
+                    nuevoProductoForm.get('valor')?.invalid &&
+                    nuevoProductoForm.get('valor')?.touched
+                  "
+                  class="text-danger small"
+                >
+                  El valor es requerido
+                </div>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label text-muted small">🧮 TOTAL CALCULADO</label>
+                <div class="alert alert-info py-2 mb-0">
+                  <strong>{{ totalGeneral | currency : 'COP' : 'symbol' : '1.0-2' }}</strong>
+                </div>
+              </div>
+            </div>
+
+            <!-- Botón de envío -->
+            <div class="text-center">
+              <button type="submit" class="btn btn-success" [disabled]="nuevoProductoForm.invalid">
+                ✅ Agregar Registro
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
 </div>
