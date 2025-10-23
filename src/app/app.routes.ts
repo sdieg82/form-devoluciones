@@ -7,7 +7,7 @@ import { Promociones } from './promociones/promociones';
 export const routes: Routes = [
     {
         path:'',
-        redirectTo:'main',
+        redirectTo:'promociones',
         pathMatch: 'full'
     },
     {
@@ -25,7 +25,7 @@ export const routes: Routes = [
 
     {
         path:'**',
-        redirectTo:'main'
+        redirectTo:'promociones'
     }
 ];
 
