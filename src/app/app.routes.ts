@@ -18,6 +18,10 @@ export const routes: Routes = [
         path:'promociones',
         component:Promociones
     },
+    {
+        path:'devoluciones',
+        component:Devoluciones
+    },
 
     {
         path:'**',
