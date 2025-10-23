@@ -268,6 +268,156 @@ replaceCommaWithDot(event: any) {
   }, 0);
 }
 
+// Método UNIVERSAL para convertir coma a punto en TODOS los dispositivos
+universalCommaToPoint(event: any) {
+  const input = event.target as HTMLInputElement;
+  
+  // Procesar inmediatamente
+  this.processUniversalConversion(input);
+  
+  // También con delay para casos donde el navegador procesa más lento
+  setTimeout(() => {
+    this.processUniversalConversion(input);
+  }, 1);
+  
+  // Delay adicional para navegadores muy lentos
+  setTimeout(() => {
+    this.processUniversalConversion(input);
+  }, 10);
+}
+
+// Interceptar TODAS las teclas de coma (PC, móvil, teclados internacionales)
+onUniversalKeyDown(event: KeyboardEvent) {
+  const input = event.target as HTMLInputElement;
+  
+  // Detectar CUALQUIER tipo de coma (diferentes teclados y idiomas)
+  const isComma = event.key === ',' || 
+                  event.key === 'Comma' || 
+                  event.code === 'Comma' ||
+                  event.keyCode === 188 ||  // Código de coma en PC
+                  event.which === 188;      // Compatibilidad con navegadores antiguos
+  
+  if (isComma) {
+    event.preventDefault(); // Prevenir la coma
+    
+    // Insertar punto directamente
+    this.insertDotAtCursor(input);
+    
+    // Procesar conversión
+    this.processUniversalConversion(input);
+    
+    // Disparar evento para actualizar FormControl
+    this.triggerInputEvent(input);
+  }
+}
+
+// Insertar punto en la posición del cursor
+private insertDotAtCursor(input: HTMLInputElement) {
+  const start = input.selectionStart || 0;
+  const end = input.selectionEnd || 0;
+  const currentValue = input.value;
+  
+  // Verificar si ya hay un punto (evitar puntos múltiples)
+  const beforeCursor = currentValue.substring(0, start);
+  const afterCursor = currentValue.substring(end);
+  
+  // Solo insertar punto si no hay uno ya
+  if (!currentValue.includes('.')) {
+    const newValue = beforeCursor + '.' + afterCursor;
+    input.value = newValue;
+    
+    // Mantener cursor después del punto
+    const newPos = start + 1;
+    setTimeout(() => {
+      input.setSelectionRange(newPos, newPos);
+    }, 0);
+  }
+}
+
+// Procesamiento universal de conversión
+private processUniversalConversion(input: HTMLInputElement) {
+  let value = input.value;
+  const originalValue = value;
+  
+  // Guardar posición del cursor
+  const cursorStart = input.selectionStart || 0;
+  
+  // 1. CONVERSIÓN PRINCIPAL: Todas las comas a puntos
+  value = value.replace(/,/g, '.');
+  
+  // 2. Limpiar caracteres inválidos (solo números y punto)
+  value = value.replace(/[^0-9.]/g, '');
+  
+  // 3. Solo UN punto decimal permitido
+  const parts = value.split('.');
+  if (parts.length > 2) {
+    value = `${parts[0]}.${parts[1]}`;
+  }
+  
+  // 4. Máximo 2 decimales
+  if (parts[1] && parts[1].length > 2) {
+    parts[1] = parts[1].substring(0, 2);
+    value = `${parts[0]}.${parts[1]}`;
+  }
+  
+  // 5. Casos especiales
+  if (value === '.') {
+    value = '0.';
+  }
+  
+  // 6. Evitar ceros múltiples al inicio (excepto 0.)
+  if (value.startsWith('0') && !value.startsWith('0.') && value.length > 1) {
+    value = value.replace(/^0+(?=\d)/, '');
+  }
+  
+  // 7. Si no puede empezar con punto, agregar 0
+  if (value.startsWith('.')) {
+    value = '0' + value;
+  }
+  
+  // Solo actualizar si cambió
+  if (input.value !== value) {
+    input.value = value;
+    
+    // Restaurar posición del cursor (ajustada)
+    const newCursorPos = Math.min(cursorStart + (value.length - originalValue.length), value.length);
+    setTimeout(() => {
+      input.setSelectionRange(newCursorPos, newCursorPos);
+    }, 0);
+    
+    // Actualizar FormControl
+    this.updateFormControl(input, value);
+  }
+}
+
+// Actualizar FormControl
+private updateFormControl(input: HTMLInputElement, value: string) {
+  const controlName = input.getAttribute('formControlName');
+  if (controlName) {
+    const numericValue = value ? (parseFloat(value) || 0) : 0;
+    this.nuevoProductoForm.get(controlName)?.setValue(numericValue);
+  }
+}
+
+// Disparar evento input manualmente
+private triggerInputEvent(input: HTMLInputElement) {
+  const inputEvent = new Event('input', { 
+    bubbles: true, 
+    cancelable: true 
+  });
+  input.dispatchEvent(inputEvent);
+}
+
+// Manejo especial para pegado (paste)
+onPasteHandler(event: ClipboardEvent) {
+  const input = event.target as HTMLInputElement;
+  
+  setTimeout(() => {
+    this.processUniversalConversion(input);
+  }, 1);
+}
+
+
 
 
 // Actualizar el método calcularTotal para usar solo unidades promocionales

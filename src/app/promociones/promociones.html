@@ -235,17 +235,34 @@
 
           <!-- Cuarta fila: Valor -->
           <div class="row g-2 mb-3">
-            <input
-  type="tel"
-  inputmode="decimal"
-  class="form-control form-control-sm"
-  formControlName="valor"
-  placeholder="0.00"
-  (focus)="selectAllText($event)"
-  (input)="replaceCommaWithDot($event)"
-  (keyup)="replaceCommaWithDot($event)"
-/>
-
+           <!-- Costo promocional con manejo UNIVERSAL -->
+<div class="col-md-6">
+  <label class="form-label text-muted small">💰 COSTO PROMOCIONAL</label>
+  <input
+    type="tel"
+    inputmode="decimal"
+    pattern="[0-9]*\.?[0-9]*"
+    class="form-control form-control-sm"
+    formControlName="valor"
+    placeholder="0.00"
+    min="0"
+    maxlength="15"
+    (focus)="selectAllText($event)"
+    (click)="selectAllText($event)"
+    (keydown)="onUniversalKeyDown($event)"
+    (input)="universalCommaToPoint($event)"
+    (keyup)="universalCommaToPoint($event)"
+    (paste)="onPasteHandler($event)"
+    (change)="universalCommaToPoint($event)"
+    (blur)="universalCommaToPoint($event)"
+  />
+  <div
+    *ngIf="nuevoProductoForm.get('valor')?.invalid && nuevoProductoForm.get('valor')?.touched"
+    class="text-danger small"
+  >
+    El costo promocional es requerido
+  </div>
+</div>
             <div class="col-md-6">
               <label class="form-label text-muted small">🧮 TOTAL CALCULADO</label>
               <div class="alert alert-info py-2 mb-0">
