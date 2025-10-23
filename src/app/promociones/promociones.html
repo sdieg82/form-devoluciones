@@ -36,14 +36,15 @@
               <td class="text-center">{{ registro.unidadesPromociones }}</td>
               <td>$ {{ registro.valor }}</td>
               <td>
-                <strong>{{ (registro.unidadesPromociones * registro.valor) }}</strong>
+                <strong>{{ registro.unidadesPromociones * registro.valor }}</strong>
               </td>
               <td>
                 <button
-                  type="button" 
+                  type="button"
                   class="btn btn-outline-danger btn-sm"
                   (click)="eliminarRegistro(i)"
-                  title="Eliminar registro">
+                  title="Eliminar registro"
+                >
                   🗑️
                 </button>
               </td>
@@ -54,7 +55,7 @@
               <td colspan="7" class="text-end"><strong>TOTAL GENERAL:</strong></td>
               <td colspan="2">
                 <strong class="text-success">{{ getTotalRegistros() }}</strong>
-              </td>   
+              </td>
             </tr>
           </tfoot>
         </table>
@@ -64,7 +65,7 @@
 </div>
 
 <!-- Botones de acción -->
-<div style="display: flex; justify-content: center;">
+<div style="display: flex; justify-content: center">
   <button type="button" class="btn btn-success me-2" (click)="exportarExcel()">
     📊 Exportar a Excel
   </button>
@@ -77,14 +78,20 @@
 </div>
 
 <!-- MODAL para el formulario -->
-<div class="modal fade" id="promocionModal" tabindex="-1" aria-labelledby="promocionModalLabel" aria-hidden="true">
+<div
+  class="modal fade"
+  id="promocionModal"
+  tabindex="-1"
+  aria-labelledby="promocionModalLabel"
+  aria-hidden="true"
+>
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="promocionModalLabel">📝 Nuevo Registro de Promoción</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      
+
       <form [formGroup]="nuevoProductoForm" (ngSubmit)="agregarProducto()">
         <div class="modal-body">
           <!-- Primera fila: Fecha y Cliente -->
@@ -98,8 +105,11 @@
                 (change)="onDateChange($event)"
               />
               <div
-                *ngIf="nuevoProductoForm.get('fecha')?.invalid && nuevoProductoForm.get('fecha')?.touched"
-                class="text-danger small">
+                *ngIf="
+                  nuevoProductoForm.get('fecha')?.invalid && nuevoProductoForm.get('fecha')?.touched
+                "
+                class="text-danger small"
+              >
                 La fecha es requerida
               </div>
             </div>
@@ -114,8 +124,12 @@
                 (focus)="selectAllText($event)"
               />
               <div
-                *ngIf="nuevoProductoForm.get('cliente')?.invalid && nuevoProductoForm.get('cliente')?.touched"
-                class="text-danger small">
+                *ngIf="
+                  nuevoProductoForm.get('cliente')?.invalid &&
+                  nuevoProductoForm.get('cliente')?.touched
+                "
+                class="text-danger small"
+              >
                 El cliente es requerido (mín. 2 caracteres)
               </div>
             </div>
@@ -134,8 +148,12 @@
                 (focus)="selectAllText($event)"
               />
               <div
-                *ngIf="nuevoProductoForm.get('factura')?.invalid && nuevoProductoForm.get('factura')?.touched"
-                class="text-danger small">
+                *ngIf="
+                  nuevoProductoForm.get('factura')?.invalid &&
+                  nuevoProductoForm.get('factura')?.touched
+                "
+                class="text-danger small"
+              >
                 La factura es requerida
               </div>
             </div>
@@ -150,8 +168,12 @@
                 (focus)="selectAllText($event)"
               />
               <div
-                *ngIf="nuevoProductoForm.get('producto')?.invalid && nuevoProductoForm.get('producto')?.touched"
-                class="text-danger small">
+                *ngIf="
+                  nuevoProductoForm.get('producto')?.invalid &&
+                  nuevoProductoForm.get('producto')?.touched
+                "
+                class="text-danger small"
+              >
                 El producto es requerido
               </div>
             </div>
@@ -175,8 +197,12 @@
                 (input)="validateNumericInput($event)"
               />
               <div
-                *ngIf="nuevoProductoForm.get('unidadesVendidas')?.invalid && nuevoProductoForm.get('unidadesVendidas')?.touched"
-                class="text-danger small">
+                *ngIf="
+                  nuevoProductoForm.get('unidadesVendidas')?.invalid &&
+                  nuevoProductoForm.get('unidadesVendidas')?.touched
+                "
+                class="text-danger small"
+              >
                 Las unidades vendidas son requeridas
               </div>
             </div>
@@ -196,8 +222,12 @@
                 (input)="validateNumericInput($event)"
               />
               <div
-                *ngIf="nuevoProductoForm.get('unidadesPromociones')?.invalid && nuevoProductoForm.get('unidadesPromociones')?.touched"
-                class="text-danger small">
+                *ngIf="
+                  nuevoProductoForm.get('unidadesPromociones')?.invalid &&
+                  nuevoProductoForm.get('unidadesPromociones')?.touched
+                "
+                class="text-danger small"
+              >
                 Las unidades de promociones son requeridas
               </div>
             </div>
@@ -205,27 +235,17 @@
 
           <!-- Cuarta fila: Valor -->
           <div class="row g-2 mb-3">
-            <div class="col-md-6">
-              <label class="form-label text-muted small">💰 COSTO PROMOCIONAL</label>
-              <input
-                type="tel"
-                inputmode="decimal"
-                pattern="[0-9]*\.?[0-9]*"
-                class="form-control form-control-sm"
-                formControlName="valor"
-                placeholder="0.00"
-                min="0"
-                maxlength="15"
-                (focus)="selectAllText($event)"
-                (click)="selectAllText($event)"
-                (input)="validateDecimalInput($event)"
-              />
-              <div
-                *ngIf="nuevoProductoForm.get('valor')?.invalid && nuevoProductoForm.get('valor')?.touched"
-                class="text-danger small">
-                El costo promocional es requerido
-              </div>
-            </div>
+            <input
+  type="tel"
+  inputmode="decimal"
+  class="form-control form-control-sm"
+  formControlName="valor"
+  placeholder="0.00"
+  (focus)="selectAllText($event)"
+  (input)="replaceCommaWithDot($event)"
+  (keyup)="replaceCommaWithDot($event)"
+/>
+
             <div class="col-md-6">
               <label class="form-label text-muted small">🧮 TOTAL CALCULADO</label>
               <div class="alert alert-info py-2 mb-0">
@@ -234,7 +254,7 @@
             </div>
           </div>
         </div>
-        
+
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
             ❌ Cancelar

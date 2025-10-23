@@ -157,13 +157,13 @@ constructor(private readonly fb: FormBuilder) {
 
 // Validar entrada numérica (solo números enteros)
 validateNumericInput(event: any) {
-  const input = event.target;
-  const value = input.value;
+  const input = event.target as HTMLInputElement;
+  let value = input.value;
   
   // Remover cualquier carácter que no sea número
   const numericValue = value.replace(/[^0-9]/g, '');
   
-  // Actualizar el valor del input y el FormControl
+  // Actualizar el valor del input
   input.value = numericValue;
   
   // Actualizar el FormControl
@@ -173,56 +173,102 @@ validateNumericInput(event: any) {
   }
 }
 
-// Validar entrada decimal (números con punto decimal)
-validateDecimalInput(event: any) { const input = event.target as HTMLInputElement;
-    let value = input.value;
-    let key = event['data'];
+// Validar entrada decimal mejorada (números con punto decimal)
+validateDecimalInput(event: any) {
+  const input = event.target as HTMLInputElement;
+  let value = input.value;
   
-    // Detectar si es un dispositivo iOS
-    const isIos = (): boolean => /iphone|ipad|ipod/i.test(navigator.userAgent);
+  // Detectar si es un dispositivo iOS
+  const isIos = (): boolean => /iphone|ipad|ipod/i.test(navigator.userAgent);
   
-    // Reemplazar todas las comas por puntos (para soporte en iOS)
-    value = value.replace(/,/g, '.');
+  // CONVERSIÓN PRINCIPAL: Reemplazar TODAS las comas por puntos
+  value = value.replace(/,/g, '.');
   
-    // También reemplazar la tecla presionada si es una coma
-    if (isIos() && key === ',') {
-      key = '.';
-    }
+  // Permitir solo números y un único punto decimal
+  value = value.replace(/[^0-9.]/g, '');
   
-    // Permitir solo números y un único punto decimal
-    value = value.replace(/[^0-9.]/g, '');
+  // Asegurar que solo haya un punto decimal
+  const parts = value.split('.');
+  if (parts.length > 2) {
+    value = `${parts[0]}.${parts[1]}`;
+  }
   
-    // Asegurar que solo haya un punto decimal
-    const parts = value.split('.');
-    if (parts.length > 2) {
-      value = `${parts[0]}.${parts[1]}`;
-    }
+  // No permitir más de dos decimales
+  if (parts[1] && parts[1].length > 2) {
+    parts[1] = parts[1].substring(0, 2);
+    value = `${parts[0]}.${parts[1]}`;
+  }
   
-    // No permitir más de dos decimales
-    if (parts[1] && parts[1].length > 2) {
-      parts[1] = parts[1].substring(0, 2);
-      value = `${parts[0]}.${parts[1]}`;
-    }
+  // Evitar múltiples ceros al inicio, excepto en "0."
+  if (value.startsWith('0') && !value.startsWith('0.') && value.length > 1) {
+    value = value.replace(/^0+(?!\.)/, '');
+  }
   
-    // Evitar múltiples ceros al inicio, excepto en "0."
-    if (value.startsWith('0') && !value.startsWith('0.') && value.length > 1) {
-      value = value.replace(/^0+(?!\.)/, '');
-    }
+  // Si el usuario solo ingresa un punto, convertirlo en "0."
+  if (value === '.') {
+    value = '0.';
+  }
   
-    // Si el usuario solo ingresa un punto, convertirlo en "0."
-    if (value === '.') {
-      value = '0.';
-    }
-  
-    // Actualizar el valor en el formulario sin emitir evento
-    input.value = value;
+  // Actualizar el valor en el input
+  input.value = value;
   
   // Actualizar el FormControl
   const controlName = input.getAttribute('formControlName');
   if (controlName) {
-    this.nuevoProductoForm.get(controlName)?.setValue(value ? parseFloat(value) : 0);
+    const numericValue = value ? parseFloat(value) : 0;
+    this.nuevoProductoForm.get(controlName)?.setValue(numericValue);
   }
 }
+
+// NUEVO: Método adicional para interceptar teclas antes de que se escriban
+onBeforeInput(event: any) {
+  const input = event.target as HTMLInputElement;
+  
+  // Si el usuario presiona coma, convertirla a punto inmediatamente
+  if (event.data === ',') {
+    event.preventDefault();
+    
+    // Insertar punto en la posición actual del cursor
+    const start = input.selectionStart || 0;
+    const end = input.selectionEnd || 0;
+    const currentValue = input.value;
+    
+    const newValue = currentValue.substring(0, start) + '.' + currentValue.substring(end);
+    input.value = newValue;
+    
+    // Posicionar cursor después del punto
+    input.setSelectionRange(start + 1, start + 1);
+    
+    // Disparar el evento input manualmente para que se procese
+    const inputEvent = new Event('input', { bubbles: true });
+    input.dispatchEvent(inputEvent);
+  }
+}
+
+// Método ultra-simple para convertir coma a punto
+replaceCommaWithDot(event: any) {
+  const input = event.target as HTMLInputElement;
+  
+  setTimeout(() => {
+    let value = input.value;
+    
+    if (value.includes(',')) {
+      // Reemplazar todas las comas por puntos
+      value = value.replace(/,/g, '.');
+      
+      // Actualizar input
+      input.value = value;
+      
+      // Actualizar FormControl
+      const controlName = input.getAttribute('formControlName');
+      if (controlName) {
+        this.nuevoProductoForm.get(controlName)?.setValue(parseFloat(value) || 0);
+      }
+    }
+  }, 0);
+}
+
+
 
 // Actualizar el método calcularTotal para usar solo unidades promocionales
 calcularTotal() {
