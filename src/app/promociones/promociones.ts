@@ -104,15 +104,7 @@ constructor(private readonly fb: FormBuilder) {
     }
   }
 
-  // Calcular total automáticamente
-  calcularTotal() {
-    const unidadesVendidas = this.nuevoProductoForm.get('unidadesVendidas')?.value || 0;
-    const unidadesPromociones = this.nuevoProductoForm.get('unidadesPromociones')?.value || 0;
-    const valor = this.nuevoProductoForm.get('valor')?.value || 0;
-    
-    const totalUnidades = unidadesVendidas + unidadesPromociones;
-    this.totalGeneral = totalUnidades * valor;
-  }
+
 
   // Agregar nuevo registro
    agregarProducto() {
@@ -163,13 +155,69 @@ constructor(private readonly fb: FormBuilder) {
     this.guardarRegistrosVentas();
   }
 
-  // Obtener el total de todos los registros
-  getTotalRegistros(): number {
-    return this.registrosVentas.reduce((total, registro) => {
-      const totalUnidades = registro.unidadesVendidas + registro.unidadesPromociones;
-      return total + totalUnidades;
-    }, 0);
+// Validar entrada numérica (solo números enteros)
+validateNumericInput(event: any) {
+  const input = event.target;
+  const value = input.value;
+  
+  // Remover cualquier carácter que no sea número
+  const numericValue = value.replace(/[^0-9]/g, '');
+  
+  // Actualizar el valor del input y el FormControl
+  input.value = numericValue;
+  
+  // Actualizar el FormControl
+  const controlName = input.getAttribute('formControlName');
+  if (controlName) {
+    this.nuevoProductoForm.get(controlName)?.setValue(numericValue ? parseInt(numericValue) : 0);
   }
+}
+
+// Validar entrada decimal (números con punto decimal)
+validateDecimalInput(event: any) {
+  const input = event.target;
+  const value = input.value;
+  
+  // Permitir solo números y un punto decimal
+  let cleanValue = value.replace(/[^0-9.]/g, '');
+  
+  // Asegurar que solo haya un punto decimal
+  const parts = cleanValue.split('.');
+  if (parts.length > 2) {
+    cleanValue = parts[0] + '.' + parts.slice(1).join('');
+  }
+  
+  // Limitar a 2 decimales
+  if (parts.length === 2 && parts[1].length > 2) {
+    cleanValue = parts[0] + '.' + parts[1].substring(0, 2);
+  }
+  
+  // Actualizar el valor del input
+  input.value = cleanValue;
+  
+  // Actualizar el FormControl
+  const controlName = input.getAttribute('formControlName');
+  if (controlName) {
+    this.nuevoProductoForm.get(controlName)?.setValue(cleanValue ? parseFloat(cleanValue) : 0);
+  }
+}
+
+// Actualizar el método calcularTotal para usar solo unidades promocionales
+calcularTotal() {
+  const unidadesPromociones = this.nuevoProductoForm.get('unidadesPromociones')?.value || 0;
+  const valor = this.nuevoProductoForm.get('valor')?.value || 0;
+  
+  // El total es solo unidades promocionales por el costo promocional
+  this.totalGeneral = unidadesPromociones * valor;
+}
+
+// Actualizar getTotalRegistros para el nuevo cálculo
+getTotalRegistros(): number {
+  return this.registrosVentas.reduce((total, registro) => {
+    return total + (registro.unidadesPromociones * registro.valor);
+  }, 0);
+}
+
 
   // Limpiar formulario y registros
   limpiarFormulario() {
@@ -213,9 +261,9 @@ constructor(private readonly fb: FormBuilder) {
 
     // Cabecera del Excel
     const headerData = [
-      { Fecha: `Fecha: ${fechaCreacion}`, Cliente: '', Factura: '', Producto: '', 'U. Vendidas': '', 'U. Promociones': '', 'Valor Unit.': '', Total: '' },
-      { Fecha: '', Cliente: '', Factura: '', Producto: '', 'U. Vendidas': '', 'U. Promociones': '', 'Valor Unit.': '', Total: '' },
-      { Fecha: 'Fecha', Cliente: 'Cliente', Factura: 'Factura', Producto: 'Producto', 'U. Vendidas': 'U. Vendidas', 'U. Promociones': 'U. Promociones', 'Valor Unit.': 'Valor Unitario', Total: 'Total' }
+      { Fecha: `Fecha: ${fechaCreacion}`, Cliente: '', Factura: '', Producto: '', 'U. Vendidas': '', 'U. Promociones': '', 'Costo Promocional': '', Total: '' },
+      { Fecha: '', Cliente: '', Factura: '', Producto: '', 'U. Vendidas': '', 'U. Promociones': '', 'Costo Promocional': '', Total: '' },
+      { Fecha: 'Fecha', Cliente: 'Cliente', Factura: 'Factura', Producto: 'Producto', 'U. Vendidas': 'U. Vendidas', 'U. Promociones': 'U. Promociones', 'Costo Promocional': 'Valor Unitario', Total: 'Total' }
     ];
     
     // Datos de los registros
@@ -226,13 +274,13 @@ constructor(private readonly fb: FormBuilder) {
       Producto: registro.producto,
       'U. Vendidas': registro.unidadesVendidas,
       'U. Promociones': registro.unidadesPromociones,
-      'Valor Unit.':` $ ${registro.valor}`,
+      'Costo Promocional':` $ ${registro.valor}`,
       Total: (registro.unidadesVendidas + registro.unidadesPromociones)
     }));
 
     // Fila de total general
     const totalData = [
-      { Fecha: '', Cliente: '', Factura: '', Producto: '', 'U. Vendidas': '', 'U. Promociones': '', 'Valor Unit.': 'TOTAL GENERAL:', Total: this.getTotalRegistros() }
+      { Fecha: '', Cliente: '', Factura: '', Producto: '', 'U. Vendidas': '', 'U. Promociones': '', 'Costo Promocional': 'TOTAL GENERAL:', Total: this.getTotalRegistros() }
     ];
     
     const allData = [...headerData, ...registrosData, ...totalData];
@@ -255,7 +303,7 @@ constructor(private readonly fb: FormBuilder) {
       { width: 30 }, // Producto
       { width: 12 }, // U. Vendidas
       { width: 12 }, // U. Promociones
-      { width: 12 }, // Valor Unit.
+      { width: 12 }, // Costo Promocional
       { width: 15 }  // Total
     ];
     

@@ -21,7 +21,7 @@
               <th>Producto</th>
               <th>U. Vendidas</th>
               <th>U. Promociones</th>
-              <th>Valor Unit.</th>
+              <th>Costo Promocional</th>
               <th>Total</th>
               <th>Acciones</th>
             </tr>
@@ -36,7 +36,7 @@
               <td class="text-center">{{ registro.unidadesPromociones }}</td>
               <td>$ {{ registro.valor }}</td>
               <td>
-                <strong>{{ (registro.unidadesVendidas + registro.unidadesPromociones) }}</strong>
+                <strong>{{ (registro.unidadesPromociones * registro.valor) }}</strong>
               </td>
               <td>
                 <button
@@ -162,13 +162,17 @@
             <div class="col-md-6">
               <label class="form-label text-muted small">📦 UNIDADES VENDIDAS</label>
               <input
-                type="number"
+                type="tel"
+                inputmode="numeric"
+                pattern="[0-9]*"
                 class="form-control form-control-sm"
                 formControlName="unidadesVendidas"
                 placeholder="0"
                 min="0"
+                maxlength="10"
                 (focus)="selectAllText($event)"
                 (click)="selectAllText($event)"
+                (input)="validateNumericInput($event)"
               />
               <div
                 *ngIf="nuevoProductoForm.get('unidadesVendidas')?.invalid && nuevoProductoForm.get('unidadesVendidas')?.touched"
@@ -179,13 +183,17 @@
             <div class="col-md-6">
               <label class="form-label text-muted small">🎁 UNIDADES PROMOCIONES</label>
               <input
-                type="number"
+                type="tel"
+                inputmode="numeric"
+                pattern="[0-9]*"
                 class="form-control form-control-sm"
                 formControlName="unidadesPromociones"
                 placeholder="0"
                 min="0"
+                maxlength="10"
                 (focus)="selectAllText($event)"
                 (click)="selectAllText($event)"
+                (input)="validateNumericInput($event)"
               />
               <div
                 *ngIf="nuevoProductoForm.get('unidadesPromociones')?.invalid && nuevoProductoForm.get('unidadesPromociones')?.touched"
@@ -195,27 +203,35 @@
             </div>
           </div>
 
-          <!-- Cuarta fila: Valor y Total -->
+          <!-- Cuarta fila: Valor -->
           <div class="row g-2 mb-3">
             <div class="col-md-6">
-              <label class="form-label text-muted small">💰 VALOR UNITARIO</label>
+              <label class="form-label text-muted small">💰 COSTO PROMOCIONAL</label>
               <input
-                type="number"
+                type="tel"
+                inputmode="decimal"
+                pattern="[0-9]*\.?[0-9]*"
                 class="form-control form-control-sm"
                 formControlName="valor"
                 placeholder="0.00"
                 min="0"
-                step="0.01"
+                maxlength="15"
                 (focus)="selectAllText($event)"
                 (click)="selectAllText($event)"
+                (input)="validateDecimalInput($event)"
               />
               <div
                 *ngIf="nuevoProductoForm.get('valor')?.invalid && nuevoProductoForm.get('valor')?.touched"
                 class="text-danger small">
-                El valor es requerido
+                El costo promocional es requerido
               </div>
             </div>
-           
+            <div class="col-md-6">
+              <label class="form-label text-muted small">🧮 TOTAL CALCULADO</label>
+              <div class="alert alert-info py-2 mb-0">
+                <strong>$ {{ totalGeneral.toFixed(2) }}</strong>
+              </div>
+            </div>
           </div>
         </div>
         
